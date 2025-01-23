@@ -162,8 +162,8 @@ tic
     %%%%%%% site using the coefficients from the current iteration
    
     %single variables
-    Q_days = fd(ii).q * b ; %FT1 
-    SL_days = fd(ii).NTOOE_L * a; %FT2
+    Q_days = fd(ii).cont_Q; %FT1 
+    SL_days = fd(ii).cont_NTOOE; %FT2
     res_days = fd(ii).res; %FT3
     
     %two components
