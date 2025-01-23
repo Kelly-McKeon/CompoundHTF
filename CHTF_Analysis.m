@@ -38,6 +38,16 @@ for id=1:numel(noaaID),disp(['Now on Site ', num2str(id)]);
         [flood]=noaaFlood(noaaID(id));
         [noaa_td, dn_local] = noaaTide(noaaID(id),t0,tf); %NOAA tide to compare to UTide
 
+        % detrend sl data first
+        ind = ~isnan(sl);
+        P = polyfit(dn(ind), sl(ind), 1); %fit linear trend
+        m = P(1); %slope
+        b = P(2); %intercept
+        trend = m*dn + b; %make trend line
+        sldt = sl-trend; %detrended
+        clearvars ind
+
+
         % fit year by year analysis
         tdyr=nan*sl; %empty array for tide data to go in
         for i = t0:tf, disp(['Year ', num2str(i)]);
@@ -52,15 +62,15 @@ for id=1:numel(noaaID),disp(['Now on Site ', num2str(id)]);
                 ind = find((y >= i-3) & (y <= i+3));
             end
 
-            if mean(~isnan(sl(ind))) > 0.75 %only do full year analysis if >75% hourly data are available
-                coef = ut_solv(dn(ind), sl(ind), [], datum.lat, 'auto');
+            if mean(~isnan(sldt(ind))) > 0.75 %only do full year analysis if >75% hourly data are available
+                coef = ut_solv(dn(ind), sldt(ind), [], datum.lat, 'auto');
                 indy = find(y==i); %only grab the middle year 
                 [td_temp, ~] = ut_reconstr(dn(indy), coef);
                 tdyr(indy) = td_temp;
             else
                 disp(['not enough data', num2str(i)])
                 ind = find( (y >= i-2) & (y <= i+2)); %if not enough data points expand window to 5 years
-                coef = ut_solv(dn(ind), sl(ind), [], datum.lat, 'auto');
+                coef = ut_solv(dn(ind), sldt(ind), [], datum.lat, 'auto');
                 indy = find(y==i); %only grab the middle year 
                 [td_temp, ~] = ut_reconstr(dn(indy), coef);
                 tdyr(indy) = td_temp;
@@ -70,21 +80,24 @@ for id=1:numel(noaaID),disp(['Now on Site ', num2str(id)]);
 
         ind2 = find( (y >= t0) & (y <= tf) ); %get only the study years
         % get seasonal component
-        coef = ut_solv(dn(ind2), sl(ind2)-tdyr(ind2), [], datum.lat, [{'SA'};{'SSA'}]);
+        coef = ut_solv(dn(ind2), sldt(ind2)-tdyr(ind2), [], datum.lat, [{'SA'};{'SSA'}]);
         [td_seas, ~] = ut_reconstr(dn(ind2), coef);
 
         % add together
         td = tdyr(ind2) + td_seas;
         dn = dn(ind2);
         sl = sl(ind2);
+        sldt = sldt(ind2);
+        trend = trend(ind2);
 
-        save(['noaa_tidegauge',num2str(datum.id),'.mat'],'datum','sl','dn','td', 'flood', 'noaa_td', 'dn_local')
+        save(['noaa_tidegauge_yearly_t',num2str(datum.id),'.mat'],'datum','sl','sldt','trend','m','b','dn','td', 'flood', 'noaa_td', 'dn_local')
     toc
 
 end 
 tstop = toc(tstart);
 
 disp(['time to run tidal analysis is ', num2str(tstop/60), ' minutes']) 
+
 
 %% Download USGS data 
 
@@ -116,9 +129,10 @@ for nn=1:numel(noaaID), disp(['Now on file number ', num2str(nn)])
 
 
     %convert to daily 
+    td = td+trend; %put the sea level rise in the tidal component
     sl_daily = max(reshape(sl,24,numel(sl)/24,[],1)); %reshape sea level to be daily max
     td_daily = max(reshape(td,24,numel(td)/24,[],1)); %reshape tide to be daily max 
-    NTOOE = sl_daily-td_daily; %NTOOE are maximum daily sea level - maximum daily tidal prediction
+    NTOOE = sl_daily-td_daily; %NTOOE are maximum daily sea level - maximum daily tidal prediction (remember SLR is in the tide here)
 
 
     %save site names in structure
@@ -474,6 +488,7 @@ for nn = 2:numel(boot);
     mag4 = [];
     
     allcount = [];
+    ccount = [];
 
     for ii = 1:numel(boot(nn).fd);
         count1 = [count1; boot(nn).fd(ii).singles]; %number of single component floods in each of the iterations
@@ -499,6 +514,7 @@ for nn = 2:numel(boot);
     bstats(nn).doubles_count_mean = nanmean(count2);
     bstats(nn).triples_count_mean = nanmean(count3);
     bstats(nn).four_count_mean = nanmean(count4);
+    bstats(nn).comp_count_mean = nanmean(ccount);
 
     %mean water level for each flood type (this is the mean of the flood
     %day water level means from each timeseries iteration)
@@ -513,6 +529,7 @@ for nn = 2:numel(boot);
     bstats(nn).doubles_count_std = nanstd(count2);
     bstats(nn).triples_count_std = nanstd(count3);
     bstats(nn).four_count_std = nanstd(count4);
+    bstats(nn).comp_count_std = nanstd(ccount);
 
     %std of water level for each flood type (this is the standard deviation
     %of the flood day water level magnitude from each timeseries iteration)
