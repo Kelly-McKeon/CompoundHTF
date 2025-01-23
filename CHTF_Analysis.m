@@ -504,6 +504,7 @@ for nn = 2:numel(boot);
         mag4 = [mag4; boot(nn).fd(ii).four_wl]; %mean magnitude of the 4 component floods in that iteration
 
         allcount = [allcount; boot(nn).fd(ii).count];
+        ccount = [ccount; count2+count3+count4];
 
     end
     
