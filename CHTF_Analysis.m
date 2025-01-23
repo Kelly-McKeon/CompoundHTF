@@ -125,7 +125,7 @@ end
 load NOAAfileID.mat 
 
 for nn=1:numel(noaaID), disp(['Now on file number ', num2str(nn)])
-    load(['noaa_tidegauge',num2str(noaaID(nn)),'.mat']) %load data from saved mat files
+    load(['noaa_tidegauge_yearly_t',num2str(noaaID(nn)),'.mat']) %load data from saved mat files
 
 
     %convert to daily 
