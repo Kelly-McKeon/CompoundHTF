@@ -4,6 +4,7 @@
 % Estuary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Script to download USGS discharge data 
+% Original script written by Dr. Jonathan Woodruff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [data]=getusgsdata(site,parameter,dstart,dend,varname)
 warning('off')
