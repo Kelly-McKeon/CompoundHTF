@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % McKeon and Piecuch 2025
-% Compound high-tide floods and the role of discharge in the Delaware River
+% Compound minor floods and the role of discharge in the Delaware River
 % Estuary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Script to download USGS discharge data 
