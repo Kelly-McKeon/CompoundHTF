@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% McKeon and Piecuch 2024
-% Compound high-tide floods and the role of discharge in the Delaware River
+% McKeon and Piecuch 2025
+% Compound minor floods and the role of discharge in the Delaware River
 % Estuary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Script to download hourly water level observations from NOAA NOS
